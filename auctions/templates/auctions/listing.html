@@ -1,0 +1,108 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<div class="container mt-5">
+    
+    <!-- Alert for closed auction -->
+    {% if not auction.is_active %}
+    <div class="alert alert-info" role="alert" style="max-width: 1000px;">
+        This auction is closed.
+    </div>
+    {% if user.username == auction.get_winner.username %}
+    <div class="alert alert-success" role="alert" style="max-width: 1000px;">
+        Congratulations! You won the auction!
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- Auction Details Card -->
+    <div class="card mb-5 shadow-lg" style="max-width: 1000px;">
+        <div class="row g-0">
+            <!-- Larger Image Column -->
+            <div class="col-md-6">
+                <img src="{{ auction.url_image }}" class="img-fluid rounded-start" alt="{{ auction.name }}" style="object-fit: cover; height: 100%; width: 100%;">
+            </div>
+
+            <!-- Auction Details Column -->
+            <div class="col-md-6">
+                <div class="card-body">
+                    <h3 class="card-title">{{ auction.name }}</h3>
+                    <p class="card-text"><small class="text-muted">by {{ auction.creator }}</small></p>
+                    <p><span class="badge bg-info text-dark">{{ auction.category }}</span></p>
+                    <p class="card-text">{{ auction.description }}</p>
+                    
+                    <!-- Price Information -->
+                    {% if auction.current_price %}
+                    <p class="card-text"><strong>Current Price: ${{ auction.current_price }}</strong></p>
+                    {% else %}
+                    <p class="card-text"><strong>Minimum Bid: ${{ auction.min_price }}</strong></p>
+                    {% endif %}
+                    
+                    <p class="card-text"><small class="text-muted">Posted on: {{ auction.date_created }}</small></p>
+
+                    <!-- Bidding Form -->
+                    {% if user.is_authenticated and auction.creator.username != user.username and auction.is_active %}
+                    <hr>
+                    <form action="{% url 'add_bid' auction.id %}" method="POST" class="mb-4">
+                        {% csrf_token %}
+                        {{ BidForm.as_p }}
+                        {% if BidForm.price.errors %}
+                        <div class="alert alert-danger">
+                            {% for error in BidForm.price.errors %}
+                            <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <input class="btn btn-success w-100" type="submit" value="Place Bid">
+                    </form>
+
+                    <!-- Watchlist Form -->
+                    <form action="{% url 'edit_watchlist' auction.id %}" method="POST" class="mb-4">
+                        {% csrf_token %}
+                        <input class="btn {% if is_on_watchlist %}btn-warning{% else %}btn-outline-primary{% endif %} w-100" type="submit" value="{% if is_on_watchlist %}Remove from Watchlist{% else %}Add to Watchlist{% endif %}">
+                    </form>
+
+                    {% elif user.is_authenticated and auction.creator.username == user.username and auction.is_active %}
+                    <!-- Close Auction Form for Creator -->
+                    <form action="{% url 'close_auction' auction.id %}" method="POST" class="mb-4">
+                        {% csrf_token %}
+                        <input class="btn btn-danger w-100" type="submit" value="Close Auction">
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="card mb-5 shadow-sm" style="max-width: 1000px;">
+        <div class="card-body">
+            <h5 class="card-title">Comments:</h5>
+            <hr>
+            
+            <!-- Display Existing Comments -->
+            {% for comment in auction.comments.all %}
+            <div class="mb-3">
+                <h6 class="fw-bold">{{ comment.user }}</h6>
+                <p>{{ comment.comment }}</p>
+                <p class="text-muted"><small>{{ comment.date_created }}</small></p>
+                <hr>
+            </div>
+            {% empty %}
+            <p>No comments yet. Be the first to comment!</p>
+            {% endfor %}
+
+            <!-- Add Comment Form -->
+            {% if user.is_authenticated %}
+            <form action="{% url 'add_comment' auction.id %}" method="POST" class="mt-3">
+                {% csrf_token %}
+                {{ CommentForm.as_p }}
+                <input class="btn btn-primary w-100" type="submit" value="Add Comment">
+            </form>
+            {% else %}
+            <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

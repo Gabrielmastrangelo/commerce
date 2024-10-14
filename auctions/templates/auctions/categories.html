@@ -1,0 +1,25 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Explore Categories</h2>
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <!-- You can add an image for each category here if available -->
+                    <!-- <img src="{{ category.image_url }}" alt="{{ category.name }}" class="img-fluid mb-3" style="max-height: 150px;"> -->
+                    
+                    <h5 class="card-title">{{ category.name }}</h5>
+                    <p class="card-text">
+                        {{ category.count_auctions }} Open auctions
+                    </p>
+                    <a href="{% url 'show_category' category.name %}" class="btn btn-outline-primary">View Listings</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

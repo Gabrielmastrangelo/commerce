@@ -1,0 +1,43 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<h2 class="my-4">{{ title }}</h2>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for auction in list_auctions %}
+      {% if auction.is_active %}
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            <img src="{{ auction.url_image }}" class="card-img-top" alt="{{ auction.name }}" style="object-fit: cover; height: 200px;">
+            
+            <div class="card-body">
+              <h5 class="card-title">{{ auction.name }}</h5>
+              <p class="card-text"><small class="text-muted">by {{ auction.creator }}</small></p>
+              
+              <!-- Badge for Category -->
+              <p><span class="badge bg-info text-dark">{{ auction.category }}</span></p>
+              
+              <!-- Description (truncated) -->
+              <p class="card-text">{{ auction.description|truncatewords:20 }}</p>
+
+              <!-- Price Information -->
+              {% if auction.current_price %}
+                <p class="card-text"><strong>Current Price: ${{ auction.current_price }}</strong></p>
+              {% else %}
+                <p class="card-text"><strong>Minimum Bid: ${{ auction.min_price }}</strong></p>
+              {% endif %}
+
+              <p class="card-text"><small class="text-muted">Posted on: {{ auction.date_created }}</small></p>
+            </div>
+            
+            <!-- Footer with Visit Auction button -->
+            <div class="card-footer text-center bg-white border-top-0">
+              <a href="{% url 'listing' auction.id %}" class="btn btn-primary">Visit Auction</a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+</div>
+
+{% endblock %}
