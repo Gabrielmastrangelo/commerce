@@ -59,6 +59,7 @@
                     <!-- Watchlist Form -->
                     <form action="{% url 'edit_watchlist' auction.id %}" method="POST" class="mb-4">
                         {% csrf_token %}
+                        {{ WatchListForm }}
                         <input class="btn {% if is_on_watchlist %}btn-warning{% else %}btn-outline-primary{% endif %} w-100" type="submit" value="{% if is_on_watchlist %}Remove from Watchlist{% else %}Add to Watchlist{% endif %}">
                     </form>
 
